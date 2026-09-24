@@ -6,8 +6,7 @@ AI-assisted workshop capture, future-state understanding, and prototype iteratio
 
 Imported from the original Lovable source archive. Built with React, TypeScript, TanStack Start, Vite, and Tailwind CSS. Application behavior and original assets are preserved. Product branding, package identity, and documentation have been updated to Propeller Studio; Lovable template identifiers and the existing browser storage key remain unchanged.
 
-Intended canonical repository: https://github.com/liltPitts44/propeller-ws-agent
-GitHub access and remote contents have not yet been verified.
+Canonical repository: https://github.com/litlpitts44/propeller-studio
 
 ## Run locally
 
@@ -37,4 +36,4 @@ AI calls run through server functions using the Lovable AI gateway. This is not 
 
 ## Ongoing work
 
-Follow GITHUB-UPLOAD.md for the initial upload. Once connected, pull the repository before each change, use a short-lived branch, validate the change, commit and push, then review and merge a pull request. Preserve the remote's existing default branch. Use main for a new empty repository. Do not force-push or rewrite published history; see AGENTS.md for the Lovable sync constraint.
+Pull `main` before each change, use a short-lived branch, validate the change, commit and push, then review and merge a pull request. Do not force-push or rewrite published history; see AGENTS.md for the Lovable sync constraint.
