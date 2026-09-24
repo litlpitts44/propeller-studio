@@ -37,7 +37,7 @@ Sign in using GitHub Desktop's browser flow, clone the target repository, and cr
 
 The remote is https://github.com/litlpitts44/propeller-studio.git. GitHub is the canonical source, so future work must begin from its latest branch history rather than re-importing the original ZIP.
 
-For future changes: fetch/pull the default branch, create a feature branch, edit, run relevant checks, commit, push, and open a pull request. Use the existing default branch, or main for a new repository. Never force-push. Respect Lovable's connected branch and verify builds before merging there.
+For future changes: fetch/pull the default branch, create a feature branch, edit, run relevant checks, commit, push, and open a pull request. Use the existing default branch, or `main` for a new repository. Never force-push. If the repository is later connected to Lovable, keep GitHub canonical and verify builds before merging.
 
 Authentication belongs in the GitHub connector/browser sign-in flow or `gh auth login`, never in chat.
 
