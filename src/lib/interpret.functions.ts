@@ -266,24 +266,25 @@ Rules:
 - Assess readiness score 0-100 consistent with that triage: open blocking questions keep it low; only assumption-level gaps keep it mid; a coherent, evidenced design scores high. readiness.status is a candid short label, rationale explains it in one sentence, blocker names the single highest-impact gap.
 - Write in json.`;
 
-async function callGateway(body: Record<string, unknown>): Promise<string> {
-  const key = process.env["LOVABLE_API_KEY"];
-  if (!key) throw new Error("AI is not configured for this project.");
+async function callAI(body: Record<string, unknown>): Promise<string> {
+  const key = process.env["OPENAI_API_KEY"];
+  if (!key) throw new Error("AI is not configured. Set OPENAI_API_KEY on the server.");
+  const baseUrl = (process.env["OPENAI_BASE_URL"] || "https://api.openai.com/v1").replace(/\/$/, "");
+  const model = process.env["OPENAI_TEXT_MODEL"] || "gpt-6-sol";
 
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+  const res = await fetch(`${baseUrl}/responses`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Lovable-API-Key": key,
-      "X-Lovable-AIG-SDK": "fetch",
+      Authorization: `Bearer ${key}`,
     },
-    body: JSON.stringify({ ...body, model: "openai/gpt-6-astra", stream: true }),
+    body: JSON.stringify({ ...body, model, stream: true }),
   });
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    if (res.status === 402)
-      throw new Error("AI credits are exhausted. Add credits to keep the analysis running.");
+    if (res.status === 401)
+      throw new Error("The OpenAI API key is missing or invalid.");
     if (res.status === 429)
       throw new Error("The AI service is busy right now. Try again in a moment.");
     throw new Error(`Analysis failed (${res.status}). ${text.slice(0, 200)}`);
@@ -329,7 +330,7 @@ async function callGateway(body: Record<string, unknown>): Promise<string> {
 export const interpretWorkshop = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InterpretInput.parse(input))
   .handler(async ({ data }) => {
-    const text = await callGateway({
+    const text = await callAI({
       instructions: SYSTEM,
       input: [
         {
@@ -448,7 +449,7 @@ export const suggestImprovement = createServerFn({ method: "POST" })
       .filter((f) => f.section === "questions" || f.confidence !== "high")
       .map((f) => `- [${f.section}/${f.confidence}] ${f.title}: ${f.detail}`)
       .join("\n");
-    const text = await callGateway({
+    const text = await callAI({
       instructions:
         "You help a facilitator improve an evolving future-state blueprint. Identify exactly one highest-impact unresolved question. Suggest 2 or 3 concise, plausible answer options grounded in the evidence. Do not invent certainty. Write in json.",
       input: [{ role: "user", content: [{ type: "input_text", text: `Objective: ${data.objective || "not stated"}\n\nWorkshop evidence:\n${captures || "none"}\n\nCurrent gaps:\n${findings || "none"}\n\nReturn the most important improvement as json.` }] }],
@@ -472,7 +473,7 @@ export const recommendStrategy = createServerFn({ method: "POST" })
     const blueprint = data.findings
       .map((f) => `- [${f.section}/${f.confidence}/${f.interpretationType}] ${f.title}: ${f.detail}`)
       .join("\n");
-    const text = await callGateway({
+    const text = await callAI({
       instructions: `You choose how a consulting workshop's future-state blueprint should be prototyped so the ideas can actually be tested with people.
 
 Available archetypes:
@@ -514,7 +515,7 @@ export const generatePrototype = createServerFn({ method: "POST" })
       `- [${finding.section}/${finding.confidence}/${finding.sourceOrigin}/${finding.interpretationType}] ${finding.title}: ${finding.detail}\n  Evidence: ${finding.excerpt || "not captured"}`,
     ).join("\n");
     const people = data.participants.map((person) => `${person.name} — ${person.role}`).join("; ") || "not named";
-    const text = await callGateway({
+    const text = await callAI({
       instructions: `You create a rigorous future-state design prototype for a consulting workshop. Build one coherent, linked operating model across workflow, RACI, decisions, rules, measures, risks, assumptions and questions.
 - Use only supplied evidence. Never invent certainty, owners, handoffs or metrics.
 - Every workflow phase must use the exact same phase title wherever referenced.
@@ -630,7 +631,7 @@ export const generateExperience = createServerFn({ method: "POST" })
     const evidence = data.findings
       .map((f) => `- [${f.section}/${f.confidence}/${f.interpretationType}] ${f.title}: ${f.detail}`)
       .join("\n");
-    const text = await callGateway({
+    const text = await callAI({
       instructions: `You script a PLAYABLE prototype that a consulting facilitator runs live with workshop participants. It is rendered as an interactive, step-by-step experience inside a facilitation tool: participants pick a scenario, take a role, read a situation, and choose an action, and each choice moves them to another step.
 
 Rules:
@@ -683,7 +684,7 @@ export const askWorkshop = createServerFn({ method: "POST" })
     const captures = data.captures.length
       ? data.captures.map((c) => `### ${c.kind} — ${c.title}\n${c.text}`).join("\n\n")
       : "(no input captured yet)";
-    const text = await callGateway({
+    const text = await callAI({
       instructions:
         "You answer a consultant's question about a live future-state design workshop, using only the supplied material. Be direct and specific: at most five sentences, no preamble, no bullet padding. Say plainly when the material does not answer the question.",
       input: [

@@ -1,10 +1,5 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
+# Repository guidance
+
+GitHub is the canonical source for Propeller Studio. Use short-lived branches and pull requests, and keep `main` deployable. Do not force-push or rewrite published history.
+
+The `.lovable/` directory is retained as optional project metadata. The application must build and run without Lovable packages, gateways, or browser hooks. If the repository is connected to Lovable later, preserve this platform-independent baseline and keep provider credentials in server-side environment variables.
