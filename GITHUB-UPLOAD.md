@@ -1,10 +1,12 @@
-# Manual GitHub upload and ongoing workflow
+# GitHub repository and ongoing workflow
+
+The source is stored in https://github.com/litlpitts44/propeller-studio. The initial manual upload is complete; the instructions below remain as a recovery reference.
 
 ## Before uploading
 
 1. Unzip propeller-studio-github-ready.zip. Open the extracted propeller-ws-agent folder.
-2. Open https://github.com/liltPitts44/propeller-ws-agent while signed into your GitHub account.
-3. Inspect the existing files and default branch first. If the repository does not exist, create it under liltPitts44 (private is a sensible initial choice). Do not replace existing code without comparing it.
+2. Open https://github.com/litlpitts44/propeller-studio while signed into your GitHub account.
+3. Inspect the existing files and default branch first. Do not replace existing code without comparing it.
 
 ## Browser upload
 
@@ -31,12 +33,12 @@ Official instructions: https://docs.github.com/en/repositories/working-with-file
 
 Sign in using GitHub Desktop's browser flow, clone the target repository, and create import/workshop-source from the existing default branch. For a truly empty repository, use main. Copy the extracted contents into the clone without copying any .git directory. Compare existing same-name files before replacing them. Review all changes in Desktop, commit, and push the branch. Use a pull request for an existing repository.
 
-## After IT enables the connection
+## Connected workflow
 
-The remote should be https://github.com/liltPitts44/propeller-ws-agent.git. The assistant must inspect the remote and branch history before syncing this local copy; if the manual upload is already complete, clone or fetch that history rather than pushing an unrelated initial history.
+The remote is https://github.com/litlpitts44/propeller-studio.git. GitHub is the canonical source, so future work must begin from its latest branch history rather than re-importing the original ZIP.
 
 For future changes: fetch/pull the default branch, create a feature branch, edit, run relevant checks, commit, push, and open a pull request. Use the existing default branch, or main for a new repository. Never force-push. Respect Lovable's connected branch and verify builds before merging there.
 
-Verify access with a small real documentation change on a temporary branch, push it, and confirm the same commit is present remotely. This verification is pending GitHub access. Authentication belongs in the connector/browser sign-in flow or gh auth login, never in chat.
+Authentication belongs in the GitHub connector/browser sign-in flow or `gh auth login`, never in chat.
 
-GitHub becomes canonical after the first successful upload. Future work should start from its latest state rather than re-importing the original ZIP.
+Future work should start from the latest `main` branch, use a focused feature branch, and land through a reviewed pull request.
