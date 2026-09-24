@@ -16,8 +16,10 @@ function base64ToBytes(b64: string): Uint8Array {
 export const transcribeSegment = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => TranscribeInput.parse(input))
   .handler(async ({ data }) => {
-    const key = process.env["LOVABLE_API_KEY"];
-    if (!key) throw new Error("AI is not configured for this project.");
+    const key = process.env["OPENAI_API_KEY"];
+    if (!key) throw new Error("AI is not configured. Set OPENAI_API_KEY on the server.");
+    const baseUrl = (process.env["OPENAI_BASE_URL"] || "https://api.openai.com/v1").replace(/\/$/, "");
+    const model = process.env["OPENAI_TRANSCRIPTION_MODEL"] || "gpt-transcribe";
 
     const bytes = base64ToBytes(data.audioBase64);
     if (bytes.byteLength < 2048) return { text: "" };
@@ -25,14 +27,14 @@ export const transcribeSegment = createServerFn({ method: "POST" })
       throw new Error("That recording segment is too large to transcribe.");
 
     const form = new FormData();
-    form.append("model", "google/gemini-3.5-transcribe");
+    form.append("model", model);
     form.append(
       "file",
       new Blob([bytes as unknown as BlobPart], { type: "audio/wav" }),
       "segment.wav",
     );
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
+    const res = await fetch(`${baseUrl}/audio/transcriptions`, {
       method: "POST",
       headers: { Authorization: `Bearer ${key}` },
       body: form,
@@ -40,8 +42,8 @@ export const transcribeSegment = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      if (res.status === 402)
-        throw new Error("AI credits are exhausted. Add credits to keep transcribing.");
+      if (res.status === 401)
+        throw new Error("The OpenAI API key is missing or invalid.");
       if (res.status === 429)
         throw new Error("Transcription is busy right now. Try again in a moment.");
       throw new Error(`Transcription failed (${res.status}). ${body.slice(0, 200)}`);
